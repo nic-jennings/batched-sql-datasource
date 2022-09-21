@@ -1,0 +1,16 @@
+{
+  "files": ["src/SQLDataSource.ts"],
+  "compilerOptions": {
+    "target": "es2016",                                
+    "module": "esnext",              
+    "moduleResolution": "node",                      
+    "declaration": false,
+    "outDir": "./dist",
+    "esModuleInterop": true,                            
+    "forceConsistentCasingInFileNames": true,            
+    "strict": true,                                     
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true
+  }
+}
