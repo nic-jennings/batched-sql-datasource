@@ -1,8 +1,5 @@
 # Batched SQL (Knex) Datasource
 
-### STILL IN ACTIVE DEVELOPMENT NPM PACKAGE IS NOT READY
-___
-
 SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with the benefit of having batching functionality from the `DataLoader` package.
 ___
 ## Getting Started
@@ -35,7 +32,7 @@ export class MyDataSource extends SQLDataSource {
   }
 
    // batching  
-  getBar: this.readKnex
+  getBar = this.readKnex
       .select("*")
       .from({b: "bar"})
       .where({ id: 1 })

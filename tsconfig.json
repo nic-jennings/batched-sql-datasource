@@ -1,16 +1,17 @@
 {
-  "files": ["src/SQLDataSource.ts"],
   "compilerOptions": {
-    "target": "es2016",                                
-    "module": "esnext",              
-    "moduleResolution": "node",                      
-    "declaration": false,
-    "outDir": "./dist",
-    "esModuleInterop": true,                            
-    "forceConsistentCasingInFileNames": true,            
-    "strict": true,                                     
+    "lib": ["es2022"],
+    "module": "commonjs",
+    "target": "es2022",
+
+    "strict": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true
-  }
+    "forceConsistentCasingInFileNames": true,
+
+    "outDir": "lib",
+    "declaration": true
+  },
+
+  "include": ["src/**/*"]
 }

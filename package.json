@@ -1,11 +1,13 @@
 {
   "name": "@nic-jennings/batched-sql-datasource",
-  "version": "0.0.7",
+  "version": "0.1.4",
   "description": "SQL DataSource with Batching and Caching Support",
-  "main": "dist/SQLDataSource.js",
-  "module": "dist/SQLDataSource.module.js",
+  "main": "lib/SQLDataSource.js",
   "input": "src/SQLDataSource.ts",
-  "types": "dist/SQLDataSource.d.ts",
+  "types": "lib/SQLDataSource.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nic-jennings/batched-sql-datasource.git"
@@ -39,10 +41,5 @@
   "peerDependencies": {
     "graphql": ">=14.0.2",
     "knex": ">=0.95.0"
-  },
-  "files": [
-    "dist",
-    "src",
-    "package.json"
-  ]
+  }
 }
