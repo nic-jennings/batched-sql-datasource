@@ -11,13 +11,13 @@ services:
       - /api/node_modules
     environment:
       NODE_ENV: production
-      DB_HOST: db
+      DB_HOST: host.docker.internal
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: postgres
       APP_PORT: 4000
-    ports: ['3000:3000'] 
+    ports: ['4000:4000'] 
   db:
     image: postgres:14.1-alpine
     restart: always

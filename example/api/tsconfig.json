@@ -3,10 +3,12 @@
     "src/**/*"
   ],
   "compilerOptions": {
-    "module": "commonjs",                                /* Specify what module code is generated. */
+    "module": "commonjs",    
+    "target": "ESNext",
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "outDir": "dist"
   }
 }

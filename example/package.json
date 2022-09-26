@@ -4,8 +4,10 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "docker-compose up",
-    "pretest": "npm run start -- --detach",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pretest:load:events": "npm run start -- --detach",
+    "pretest:load:eventsBatched": "npm run start -- --detach",
+    "test:load:events": "docker run --rm --env TARGET_HOSTNAME=\"host.docker.internal:4000\" -i grafana/k6 run - <test/load/events.load.ts",
+    "test:load:eventsBatched": "docker run --rm --env TARGET_HOSTNAME=\"host.docker.internal:4000\" -i grafana/k6 run - <test/load/eventsBatched.load.ts"
   },
   "keywords": [],
   "author": "",

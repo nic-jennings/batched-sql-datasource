@@ -5,7 +5,8 @@ import { EventsLoader } from "./graphql/loaders";
 
 const KnexConfig = {
   client: "pg",
-  connection: "postgresql://postgres:postgres@localhost:5432/postgres",
+  connection:
+    "postgresql://postgres:postgres@host.docker.internal:5432/postgres",
 };
 
 const dataSources = {
