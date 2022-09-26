@@ -1,0 +1,40 @@
+{
+  "name": "batch-example-api",
+  "version": "0.0.2",
+  "author": "Nic Jennings",
+  "scripts": {
+    "build-ts": "tsc",
+    "build": "npm run build-ts && npm run lint",
+    "debug": "npm run build && npm run watch-debug",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "serve-debug": "nodemon --inspect dist/server.js",
+    "serve": "node dist/server.js",
+    "prestart": "npm run build",
+    "start": "npm run serve",
+    "test": "jest --forceExit --coverage --verbose",
+    "watch-debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run serve-debug\"",
+    "watch-node": "nodemon dist/server.js",
+    "watch-assets": "mix watch",
+    "watch-test": "npm run test -- --watchAll",
+    "watch-ts": "tsc -w",
+    "watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "docker:build": "docker build -t api .",
+    "docker:run": "docker run -p 4000:4000 api"
+  },
+  "keywords": [],
+  "devDependencies": {
+    "@types/eslint": "^8.4.6",
+    "@typescript-eslint/eslint-plugin": "^5.38.0",
+    "@typescript-eslint/parser": "^5.38.0",
+    "concurrently": "^7.4.0",
+    "eslint": "^8.24.0",
+    "nodemon": "^2.0.20",
+    "typescript": "^4.8.3"
+  },
+  "dependencies": {
+    "@nic-jennings/batched-sql-datasource": "^0.1.8",
+    "apollo-server": "^3.10.2",
+    "graphql": "^16.6.0",
+    "pg": "^8.8.0"
+  }
+}

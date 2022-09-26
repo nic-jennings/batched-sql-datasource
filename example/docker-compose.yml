@@ -1,0 +1,34 @@
+version: "3"
+services:
+  batchapi:
+    container_name: batch-example-api 
+    build: 
+      context: ./api
+    depends_on:
+      - db  
+    volumes:
+      - ./api:/api
+      - /api/node_modules
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: postgres
+      APP_PORT: 4000
+    ports: ['3000:3000'] 
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes: 
+      - db:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+volumes:
+  db:
+    driver: local

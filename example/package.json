@@ -1,0 +1,13 @@
+{
+  "name": "batch_sql_datasource_example",
+  "description": "Batch SQL DataSource Example",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "docker-compose up",
+    "pretest": "npm run start -- --detach",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
