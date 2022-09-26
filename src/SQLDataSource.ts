@@ -25,7 +25,7 @@ let hasCache = false;
 let hasLogger = false;
 let hasBatch = false;
 
-interface DataSourceKnex extends Knex {
+export interface DataSourceKnex extends Knex {
   cache?: (ttl: number) => Knex.QueryBuilder;
   batch?: (key: readonly string[], result: unknown) => typeof DataLoader;
 }
@@ -44,25 +44,37 @@ export type knexConfig = { client: string; connection: string | undefined };
 export class BatchedSQLDataSource extends DataSource {
   cache: any;
   context: any;
-  readKnex: DataSourceKnex;
-  writeKnex: DataSourceKnex;
+  db: {
+    query: DataSourceKnex;
+    write: DataSourceKnex;
+  };
+  seperateInstances: boolean;
 
   constructor(
     readKnexConfig: knexConfig | DataSourceKnex,
-    writeKnexConfig: knexConfig | DataSourceKnex
+    writeKnexConfig?: knexConfig | DataSourceKnex
   ) {
     super();
+    this.seperateInstances = true;
+    const queryConnection =
+      typeof readKnexConfig === "function"
+        ? readKnexConfig
+        : knex(readKnexConfig);
 
-    if (typeof readKnexConfig === "function") {
-      this.readKnex = readKnexConfig;
-    } else {
-      this.readKnex = knex(readKnexConfig);
+    if (!writeKnexConfig) {
+      this.seperateInstances = false;
+      writeKnexConfig = queryConnection;
     }
-    if (typeof writeKnexConfig === "function") {
-      this.writeKnex = writeKnexConfig;
-    } else {
-      this.writeKnex = knex(writeKnexConfig);
-    }
+
+    const writeConnection =
+      typeof writeKnexConfig === "function"
+        ? writeKnexConfig
+        : knex(writeKnexConfig);
+
+    this.db = {
+      query: queryConnection,
+      write: writeConnection,
+    };
 
     this._extendKnex();
   }
@@ -70,14 +82,14 @@ export class BatchedSQLDataSource extends DataSource {
   private _extendKnex() {
     const _this = this;
     const knexQueryBuilder = knex.QueryBuilder as NewQueryBuilder;
-    if (!this.readKnex.cache && !hasCache) {
+    if (!this.db.query.cache && !hasCache) {
       knexQueryBuilder.extend("cache", function (ttl) {
         return _this.cacheQuery(this, ttl);
       });
       hasCache = true;
     }
 
-    if (!this.readKnex.batch && !hasBatch) {
+    if (!this.db.query.batch && !hasBatch) {
       knexQueryBuilder.extend(
         "batch",
         function (
@@ -100,8 +112,8 @@ export class BatchedSQLDataSource extends DataSource {
 
     if (DEBUG && !hasLogger) {
       hasLogger = true; // Prevent duplicate loggers
-      knexTinyLogger(this.readKnex); // Add a logging utility for debugging
-      knexTinyLogger(this.writeKnex); // Add a logging utility for debugging
+      knexTinyLogger(this.db.query); // Add a logging utility for debugging
+      if (this.seperateInstances) knexTinyLogger(this.db.write); // Add a logging utility for debugging
     }
   }
 
