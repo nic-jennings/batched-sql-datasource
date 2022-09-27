@@ -5,11 +5,11 @@ ___
 ## Getting Started
 ### Installation
 
-`npm i @nic-jennings/batch-sql-datasource`
+`npm i @nic-jennings/batched-sql-datasource`
 
 or
 
-`yarn add @nic-jennings/batch-sql-datasource`
+`yarn add @nic-jennings/batched-sql-datasource`
 
 ### Usage
 
@@ -18,7 +18,7 @@ Create DataLoader:
 ```js
 // MyDataSource.js
 
-import { BatchedSQLDataSource } from "@nic-jennings/batch-sql-datasource"
+import { BatchedSQLDataSource } from "@nic-jennings/batched-sql-datasource"
 
 export class MyDataSource extends BatchedSQLDataSource {
 
