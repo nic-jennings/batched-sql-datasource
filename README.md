@@ -18,13 +18,30 @@ Create DataLoader:
 ```js
 // MyDataSource.js
 
-import { SQLDataSource } from "@nic-jennings/batch-sql-datasource"
+import { BatchedSQLDataSource } from "@nic-jennings/batch-sql-datasource"
 
-export class MyDataSource extends SQLDataSource {
+export class MyDataSource extends BatchedSQLDataSource {
+
+  constructor(db) {
+    super(db);
+  }
+  /* or if you have seperate read and write instances:
+  constructor(readDb, writeDb) {
+    super(readDb, writeDb);
+  }
+  */
+  
+  // Standard  
+  getFoo() {
+    return this.db.query
+      .select("*")
+      .from("foo")
+      .where({ id: 1 });
+  }
 
   // caching  
   getFoo() {
-    return this.readKnex
+    return this.db.query
       .select("*")
       .from("foo")
       .where({ id: 1 })
@@ -32,7 +49,7 @@ export class MyDataSource extends SQLDataSource {
   }
 
    // batching  
-  getBar = this.readKnex
+  getBar = this.db.query
       .select("*")
       .from({b: "bar"})
       .where({ id: 1 })
@@ -60,7 +77,7 @@ const writeKnexConfig = {
     /* CONNECTION INFO */
   }
 };
-// We create two instances of Knex (Read & Write), you can also pass  knex instances instead of a configuration object
+// We can either create two instances of Knex (Read & Write) or pass a single connection, you can also pass knex instances instead of a configuration object
 const db = new MyDataSource(knexConfig, writeKnexConfig);
 
 const server = new ApolloServer({
@@ -120,7 +137,7 @@ The context from your Apollo server is available as `this.context`.
 
 ### knex
 
-The knex instance is made available as `this.readKnex` or `this.writeKnex`.
+The knex instance is made available as `this.db.query` and `this.db.write`.
 
 As the names suggest one should be a read instance and the other should be a write instance. If you do not have seperate instances just pass the same configuration twice.
 
