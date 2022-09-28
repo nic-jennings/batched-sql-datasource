@@ -30,6 +30,8 @@ export interface DataSourceKnex extends Knex {
   batch?: (key: readonly string[], result: unknown) => typeof DataLoader;
 }
 
+export interface BatchedLoader<T, K> extends DataLoader<T, K> {}
+
 interface NewQueryBuilder {
   extend(
     methodName: string,
@@ -96,14 +98,27 @@ export class BatchedSQLDataSource extends DataSource {
           whereIn: string,
           callback: (keys: readonly string[], result: unknown) => unknown[]
         ) {
-          return new DataLoader(async (keys: readonly string[]) => {
-            const result: unknown = await this.whereIn(whereIn, keys);
-            return callback(keys, result);
-          });
+          const query: Knex.QueryBuilder = this.clone();
+          return _this.batchQuery(query, whereIn, callback);
         }
       );
       hasBatch = true;
     }
+  }
+
+  batchQuery<TResult = unknown>(
+    query: Knex.QueryBuilder,
+    whereIn: string,
+    callback: (keys: readonly string[], result: any[]) => Array<TResult>
+  ): DataLoader<string, TResult> {
+    return new DataLoader((keys: readonly string[]) => {
+      return query
+        .clone()
+        .whereIn(whereIn, keys)
+        .then((result) => {
+          return callback(keys, result);
+        });
+    });
   }
 
   initialize(config: { context: any; cache: InMemoryLRUCache<string> }) {
