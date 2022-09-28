@@ -124,11 +124,11 @@ The default value for cache is `5 seconds`.
 Unless [configured](https://www.apollographql.com/docs/apollo-server/data/data-sources/#using-memcachedredis-as-a-cache-storage-backend), SQLDataSource uses an InMemoryLRUCache like the `RESTDataSource`.
 
 ___
-## SQLDataSource Properties
+## BatchedSQLDataSource Properties
 
-SQLDataSource is a Typescript Class that extends Apollo's base DataSource Class and can be extended to make a new DataSource 
+BatchedSQLDataSource is a Typescript Class that extends Apollo's base DataSource Class and can be extended to make a new DataSource 
 
-SQLDataSource has an initialize method that Apollo will call when a new request is routed.
+BatchedSQLDataSource has an initialize method that Apollo will call when a new request is routed.
 
 If no cache is provided in your Apollo server configuration, SQLDataSource falls back to the same InMemoryLRUCache leveraged by [RESTDataSource].
 
