@@ -21,9 +21,17 @@ Create DataLoader:
 import { BatchedSQLDataSource } from "@nic-jennings/batched-sql-datasource"
 
 export class MyDataSource extends BatchedSQLDataSource {
-
+  getBar;
+  
   constructor(db) {
     super(db);
+
+    // batching  
+    this.getBar = this.db.query
+        .select("*")
+        .from({b: "bar"})
+        .where({ id: 1 })
+        .batch("b.id", keys.map((x) => result?.filter((y) => y.id === x));
   }
   /* or if you have seperate read and write instances:
   constructor(readDb, writeDb) {
@@ -40,20 +48,13 @@ export class MyDataSource extends BatchedSQLDataSource {
   }
 
   // caching  
-  getFoo() {
+  getFooCached() {
     return this.db.query
       .select("*")
       .from("foo")
       .where({ id: 1 })
       .cache(10);
   }
-
-   // batching  
-  getBar = this.db.query
-      .select("*")
-      .from({b: "bar"})
-      .where({ id: 1 })
-      .batch("b.id", keys.map((x) => result?.filter((y) => y.id === x));
 
 }
 ```
@@ -97,7 +98,7 @@ DataLoaders can help you by collecting all of your queries and combining them in
 By making it part of the fluid interface that Knex provides it makes using it much cleaner.
 
 ```
-getBar = this.readKnex
+this.getBar = this.readKnex
       .select("*")
       .from({b: "bar"})
       .where({ id: 1 })
