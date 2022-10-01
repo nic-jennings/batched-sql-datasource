@@ -5,7 +5,7 @@
   "main": "lib/cjs/SQLDataSource.js",
   "module": "lib/es/SQLDataSource.js",
   "input": "src/SQLDataSource.ts",
-  "types": "lib/SQLDataSource.d.ts",
+  "types": "lib/es/SQLDataSource.d.ts",
   "scripts": {
     "build": "npm run build:es & npm run build:cjs",
     "build:es": "tsc",
