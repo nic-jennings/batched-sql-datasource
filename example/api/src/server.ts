@@ -2,11 +2,12 @@ import { resolvers } from "./graphql/resolvers";
 import { typeDefs } from "./graphql/schema";
 import { ApolloServer } from "apollo-server";
 import { EventsLoader } from "./graphql/loaders";
-
+const { HOST } = process.env;
 const KnexConfig = {
   client: "pg",
-  connection:
-    "postgresql://postgres:postgres@host.docker.internal:5432/postgres",
+  connection: `postgresql://postgres:postgres@${
+    HOST ? HOST : "host.docker.internal"
+  }:5432/postgres`,
 };
 
 const dataSources = {

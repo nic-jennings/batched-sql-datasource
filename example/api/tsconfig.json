@@ -2,6 +2,13 @@
   "include": [
     "src/**/*"
   ],
+  "ts-node": {
+    "files": true
+  },
+  "files": [
+    "src/index.ts",
+    "types/declarations.d.ts"
+  ],
   "compilerOptions": {
     "module": "commonjs",    
     "target": "ESNext",
@@ -9,6 +16,7 @@
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "noImplicitAny": false,
-    "outDir": "dist"
+    "outDir": "dist",
+    "typeRoots": ["node_modules", "./types"]
   }
 }
