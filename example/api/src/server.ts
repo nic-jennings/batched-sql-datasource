@@ -20,6 +20,7 @@ const server = new ApolloServer({
   dataSources: () => {
     return dataSources;
   },
+  cache: "bounded",
 });
 
 server.listen().then(({ url }) => {
