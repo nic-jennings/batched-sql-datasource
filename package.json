@@ -2,11 +2,14 @@
   "name": "@nic-jennings/batched-sql-datasource",
   "version": "0.2.0",
   "description": "SQL DataSource with Batching and Caching Support",
-  "main": "lib/SQLDataSource.js",
+  "main": "lib/cjs/SQLDataSource.js",
+  "module": "lib/es/SQLDataSource.js",
   "input": "src/SQLDataSource.ts",
   "types": "lib/SQLDataSource.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:es & npm run build:cjs",
+    "build:es": "tsc",
+    "build:cjs": "tsc --module CommonJS --outDir lib/cjs",
     "prepublish": "npm run build"
   },
   "repository": {
