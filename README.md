@@ -30,8 +30,10 @@ export class MyDataSource extends BatchedSQLDataSource {
     this.getBar = this.db.query
         .select("*")
         .from({b: "bar"})
-        .where({ id: 1 })
-        .batch("b.id", keys.map((x) => result?.filter((y) => y.id === x));
+        .batch(async (query, keys) => { 
+          const result = query.whereIn("b.id", keys);
+          return keys.map((x) => result?.filter((y) => y.id === x)
+        });
   }
   /* or if you have seperate read and write instances:
   constructor(readDb, writeDb) {
@@ -98,11 +100,13 @@ DataLoaders can help you by collecting all of your queries and combining them in
 By making it part of the fluid interface that Knex provides it makes using it much cleaner.
 
 ```
-this.getBar = this.readKnex
-      .select("*")
-      .from({b: "bar"})
-      .where({ id: 1 })
-      .batch("b.id", keys.map((x) => result?.filter((y) => y.id === x));      
+   this.getBar = this.db.query
+        .select("*")
+        .from({b: "bar"})
+        .batch(async (query, keys) => { 
+          const result = query.whereIn("b.id", keys);
+          return keys.map((x) => result?.filter((y) => y.id === x)
+        });   
 ```
 Now in our resolver we simple have:
 
@@ -147,6 +151,28 @@ ___
 
 To enable more enhanced logging via [knex-tiny-logger], set `DEBUG` to a truthy value in your environment variables.
 
+___
+
+## V1.0.0: Breaking changings
+
+The API has changed from the V0.0.1 > to V0.2.2.
+
+Previously the `batch` function accepted a string and function to filter the results. This has been changed to accept a function which allows you pass an object to the `.load` or `.loadMany` and do multiple whereIn queries.
+
+E.g: 
+
+```
+dataSources.db.getBar.load({ id, value: "bar" });
+```
+```
+   this.getBar = this.db.query
+        .select("*")
+        .from({b: "bar"})
+        .batch(async (query, keys) => { 
+          const result = query.whereIn("b.id", keys.map(k => k.id)).whereIn("b.value", keys.map(k => k.value));
+          return keys.map((x) => result?.filter((y) => y.id === x.id && y.value === x.value)
+        });
+```
 ___
 
 ## Credit

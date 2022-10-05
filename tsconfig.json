@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "removeComments": false,
 
     "outDir": "lib/es",
     "declaration": true

@@ -8,14 +8,17 @@ import { Knex as KnexOriginal } from "knex";
 
 declare module "knex" {
   namespace Knex {
+    type KnexConfig = { client: string; connection: string | undefined };
+
+    type BatchCallback = (
+      query: Knex.QueryBuilder,
+      keys: readonly any[]
+    ) => Promise<any[]>;
     interface QueryBuilder {
       cache<TRecord extends {}, TResult>(
         value: number
       ): KnexOriginal.QueryBuilder<TRecord, TResult>;
-      batch<key = string | number, type = unknown>(
-        key: string,
-        callback: (key: string[], results: type) => {}
-      ): DataLoader<key, type>;
+      batch(callback: BatchCallback): BatchedLoader<unknown, any[]>;
     }
   }
 }
@@ -26,8 +29,8 @@ let hasLogger = false;
 let hasBatch = false;
 
 export interface DataSourceKnex extends Knex {
-  cache?: (ttl: number) => Knex.QueryBuilder;
-  batch?: (key: readonly string[], result: unknown) => typeof DataLoader;
+  cache?: Knex.QueryBuilder["cache"];
+  batch?: Knex.QueryBuilder["batch"];
 }
 
 export interface BatchedLoader<T, K> extends DataLoader<T, K> {}
@@ -38,11 +41,10 @@ interface NewQueryBuilder {
     fn: <TRecord extends {} = any, TResult = unknown[]>(
       this: Knex.QueryBuilder<TRecord, TResult>,
       ...args: any[]
-    ) => Knex.QueryBuilder<TRecord, TResult> | DataLoader<string, unknown>
+    ) => Knex.QueryBuilder<TRecord, TResult> | BatchedLoader<unknown, any[]>
   ): void;
 }
 
-export type knexConfig = { client: string; connection: string | undefined };
 export class BatchedSQLDataSource extends DataSource {
   cache: any;
   context: any;
@@ -53,8 +55,8 @@ export class BatchedSQLDataSource extends DataSource {
   seperateInstances: boolean;
 
   constructor(
-    readKnexConfig: knexConfig | DataSourceKnex,
-    writeKnexConfig?: knexConfig | DataSourceKnex
+    readKnexConfig: Knex.KnexConfig | DataSourceKnex,
+    writeKnexConfig?: Knex.KnexConfig | DataSourceKnex
   ) {
     super();
     this.seperateInstances = true;
@@ -92,33 +94,19 @@ export class BatchedSQLDataSource extends DataSource {
     }
 
     if (!this.db.query.batch && !hasBatch) {
-      knexQueryBuilder.extend(
-        "batch",
-        function (
-          whereIn: string,
-          callback: (keys: readonly string[], result: unknown) => unknown[]
-        ) {
-          const query: Knex.QueryBuilder = this.clone();
-          return _this.batchQuery(query, whereIn, callback);
-        }
-      );
+      knexQueryBuilder.extend("batch", function (callback: Knex.BatchCallback) {
+        const query: Knex.QueryBuilder = this.clone();
+        return _this.batchQuery(query, callback);
+      });
       hasBatch = true;
     }
   }
 
-  batchQuery<TResult = unknown>(
+  batchQuery(
     query: Knex.QueryBuilder,
-    whereIn: string,
-    callback: (keys: readonly string[], result: any[]) => Array<TResult>
-  ): DataLoader<string, TResult> {
-    return new DataLoader((keys: readonly string[]) => {
-      return query
-        .clone()
-        .whereIn(whereIn, keys)
-        .then((result) => {
-          return callback(keys, result);
-        });
-    });
+    callback: Knex.BatchCallback
+  ): BatchedLoader<unknown, any[]> {
+    return new DataLoader((keys) => callback(query, keys));
   }
 
   initialize(config: { context: any; cache: InMemoryLRUCache<string> }) {

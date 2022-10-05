@@ -1,7 +1,6 @@
 import {
   BatchedLoader,
   BatchedSQLDataSource,
-  knexConfig,
 } from "@nic-jennings/batched-sql-datasource";
 import { Knex } from "knex";
 import { EventAttribute, Event } from "../../types";
@@ -9,15 +8,16 @@ import { EventAttribute, Event } from "../../types";
 export class EventsLoader extends BatchedSQLDataSource {
   getEventsAttributesBatched: BatchedLoader<string, EventAttribute[]>;
 
-  constructor(read: Knex | knexConfig, write?: Knex | knexConfig) {
+  constructor(read: Knex | Knex.KnexConfig, write?: Knex | Knex.KnexConfig) {
     super(read, write);
 
     this.getEventsAttributesBatched = this.db.query
       .select("*")
       .from({ ea: "event_attribute" })
-      .batch("ea.event_id", (keys, result) =>
-        keys.map((x) => result?.filter((y) => y.event_id === x))
-      );
+      .batch(async (query, keys) => {
+        const result = await query.whereIn("ea.event_id", keys);
+        return keys.map((x) => result?.filter((y) => y.event_id === x));
+      });
   }
 
   getEvents(): Promise<Event[]> {
