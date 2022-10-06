@@ -18,7 +18,7 @@ declare module "knex" {
       cache<TRecord extends {}, TResult>(
         value: number
       ): KnexOriginal.QueryBuilder<TRecord, TResult>;
-      batch(callback: BatchCallback): BatchedLoader<unknown, any[]>;
+      batch(callback: BatchCallback): BatchedLoader;
     }
   }
 }
@@ -33,7 +33,8 @@ export interface DataSourceKnex extends Knex {
   batch?: Knex.QueryBuilder["batch"];
 }
 
-export interface BatchedLoader<T, K> extends DataLoader<T, K> {}
+export interface BatchedLoader<T = unknown, K = any[]>
+  extends DataLoader<T, K> {}
 
 interface NewQueryBuilder {
   extend(
@@ -41,7 +42,7 @@ interface NewQueryBuilder {
     fn: <TRecord extends {} = any, TResult = unknown[]>(
       this: Knex.QueryBuilder<TRecord, TResult>,
       ...args: any[]
-    ) => Knex.QueryBuilder<TRecord, TResult> | BatchedLoader<unknown, any[]>
+    ) => Knex.QueryBuilder<TRecord, TResult> | BatchedLoader
   ): void;
 }
 
@@ -105,7 +106,7 @@ export class BatchedSQLDataSource extends DataSource {
   batchQuery(
     query: Knex.QueryBuilder,
     callback: Knex.BatchCallback
-  ): BatchedLoader<unknown, any[]> {
+  ): BatchedLoader {
     return new DataLoader((keys) => callback(query, keys));
   }
 
