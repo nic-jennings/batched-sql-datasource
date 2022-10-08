@@ -1,6 +1,6 @@
 {
   "name": "@nic-jennings/batched-sql-datasource",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SQL DataSource with Batching and Caching Support",
   "main": "lib/cjs/SQLDataSource.js",
   "module": "lib/es/SQLDataSource.js",
