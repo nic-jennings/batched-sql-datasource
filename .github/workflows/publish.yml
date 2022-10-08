@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 jobs:
-  build:
+  publish-npm:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -19,3 +19,19 @@ jobs:
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci && npm run build
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.PACKAGES_TOKEN}}
