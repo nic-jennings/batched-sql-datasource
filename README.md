@@ -1,14 +1,16 @@
 # Batched SQL (Knex) Datasource
 
 SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with the benefit of having batching functionality from the `DataLoader` package.
-___
+
+---
 
 ## Getting Started
+
 ### Installation
 
 ```js
 // Use V2.0.0 > for Apollo Server 4
-// Or V1.X.X for Apollo Server 4 
+// Or V1.X.X for Apollo Server 4
 npm i @nic-jennings/batched-sql-datasource
 ```
 
@@ -16,7 +18,7 @@ or
 
 ```js
 // Use V2.0.0 > for Apollo Server 4
-// Or V1.X.X for Apollo Server 4 
+// Or V1.X.X for Apollo Server 4
 yarn add @nic-jennings/batched-sql-datasource
 ```
 
@@ -31,21 +33,21 @@ import { BatchedSQLDataSource } from "@nic-jennings/batched-sql-datasource"
 
 export class MyDataSource extends BatchedSQLDataSource {
   getBar;
-  
+
   constructor(config) {
     super(config);
 
-    // batching  
+    // batching
     this.getBar = this.db.query
         .select("*")
         .from({b: "bar"})
-        .batch(async (query, keys) => { 
+        .batch(async (query, keys) => {
           const result = query.whereIn("b.id", keys);
           return keys.map((x) => result?.filter((y) => y.id === x)
         });
   }
-  
-  // Standard  
+
+  // Standard
   getFoo() {
     return this.db.query
       .select("*")
@@ -53,7 +55,7 @@ export class MyDataSource extends BatchedSQLDataSource {
       .where({ id: 1 });
   }
 
-  // caching  
+  // caching
   getFooCached() {
     return this.db.query
       .select("*")
@@ -76,7 +78,7 @@ const readKnexConfig = {
   client: "pg",
   connection: {
     /* CONNECTION INFO */
-  }
+  },
 };
 
 // Optional - if you have different read write instances
@@ -84,7 +86,7 @@ const writeKnexConfig = {
   client: "pg",
   connection: {
     /* CONNECTION INFO */
-  }
+  },
 };
 
 const server = new ApolloServer({
@@ -102,10 +104,10 @@ startStandaloneServer(server, {
     };
   },
 }).then(({ url }) => console.log(`🚀 Server ready at ${url}`));
-
 ```
 
 ### Batching (.batch( key, callback ))
+
 As GraphQL only requests the data we require from the database when it is part of the query, it can lead to what is know as the n+1 problem. This is solved by using DataLoaders.
 
 DataLoaders can help you by collecting all of your queries and combining them in a single one. And what's wonderful about this strategy is that it doesn't matter if your data exists in different DB; you can fetch your data from different sources. The only downside to this strategy is that we have to define a data loader for each model which makes it a bit cumbersome to use.
@@ -116,11 +118,12 @@ By making it part of the fluid interface that Knex provides it makes using it mu
    this.getBar = this.db.query
         .select("*")
         .from({b: "bar"})
-        .batch(async (query, keys) => { 
+        .batch(async (query, keys) => {
           const result = query.whereIn("b.id", keys);
           return keys.map((x) => result?.filter((y) => y.id === x)
-        });   
+        });
 ```
+
 Now in our resolver we simple have:
 
 ```
@@ -128,6 +131,7 @@ Now in our resolver we simple have:
       return dataSources.db.getBar.load(id);
  },
 ```
+
 ### Caching ( .cache( ttl ) )
 
 If you were to make the same query over the course of multiple requests to your server you could also be making needless requests to your server - especially for expensive queries.
@@ -140,10 +144,11 @@ The default value for cache is `5 seconds`.
 
 Unless [configured](https://www.apollographql.com/docs/apollo-server/data/data-sources/#using-memcachedredis-as-a-cache-storage-backend), SQLDataSource uses an InMemoryLRUCache like the `RESTDataSource`.
 
-___
+---
+
 ## BatchedSQLDataSource Properties
 
-BatchedSQLDataSource is a Typescript Class that extends Apollo's base DataSource Class and can be extended to make a new DataSource 
+BatchedSQLDataSource is a Typescript Class that extends Apollo's base DataSource Class and can be extended to make a new DataSource
 
 BatchedSQLDataSource has an initialize method that Apollo will call when a new request is routed.
 
@@ -159,52 +164,13 @@ The knex instance is made available as `this.db.query` and `this.db.write`.
 
 As the names suggest one should be a read instance and the other should be a write instance. If you do not have seperate instances just pass the same configuration twice.
 
-___
+---
+
 ## Debugging
 
 To enable more enhanced logging via [knex-tiny-logger], set `DEBUG` to a truthy value in your environment variables.
 
-___
-
-## V2.0.0: Breaking changes
-
-Inline with the release of Apollo Server 4 this package has been updated and the API has changed since V.1.X.0 been changed to reflect this.
-
-The constructor now takes a config object:
-
-```
-{ 
-  knexConfig: Knex.KnexConfig | DataSourceKnex;
-  writeKnexConfig?: Knex.KnexConfig | DataSourceKnex;
-  cache?: KeyValueCache;
-  context?: Context;
-}
-```
-
-You will also need to follow the Apollo [migration guide](https://www.apollographql.com/docs/apollo-server/v4/migration#datasources) if you are upgrading from Apollo Server 3.
-___
-
-## V1.0.0: Breaking changes
-
-The API has changed from the V0.0.1 > to V0.2.2.
-
-Previously the `batch` function accepted a string and function to filter the results. This has been changed to accept a function which allows you pass an object to the `.load` or `.loadMany` and do multiple whereIn queries.
-
-E.g: 
-
-```
-dataSources.db.getBar.load({ id, value: "bar" });
-```
-```
-   this.getBar = this.db.query
-        .select("*")
-        .from({b: "bar"})
-        .batch(async (query, keys) => { 
-          const result = query.whereIn("b.id", keys.map(k => k.id)).whereIn("b.value", keys.map(k => k.value));
-          return keys.map((x) => result?.filter((y) => y.id === x.id && y.value === x.value)
-        });
-```
-___
+---
 
 ## Credit
 
