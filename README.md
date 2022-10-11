@@ -11,7 +11,7 @@ SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with
 ```js
 // Use V2.0.0 > for Apollo Server 4
 // Or V1.X.X for Apollo Server 4
-npm i @nic-jennings/batched-sql-datasource
+npm i @nic-jennings/sql-datasource
 ```
 
 or
@@ -19,7 +19,7 @@ or
 ```js
 // Use V2.0.0 > for Apollo Server 4
 // Or V1.X.X for Apollo Server 4
-yarn add @nic-jennings/batched-sql-datasource
+yarn add @nic-jennings/sql-datasource
 ```
 
 ### Usage
