@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.0.0-rc.17",
-    "@nic-jennings/batched-sql-datasource": "^1.0.2",
+    "@nic-jennings/sql-datasource": "^0.0.1",
     "graphql": "^16.6.0",
     "graphql-tag": "^2.12.6",
     "pg": "^8.8.0",

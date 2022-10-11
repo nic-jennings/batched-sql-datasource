@@ -2,7 +2,7 @@ import {
   BatchedLoader,
   BatchedSQLDataSource,
   BatchedSQLDataSourceProps,
-} from "@nic-jennings/batched-sql-datasource";
+} from "@nic-jennings/sql-datasource";
 import { EventAttribute, Event } from "../../types";
 
 export class EventsLoader extends BatchedSQLDataSource {

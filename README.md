@@ -29,7 +29,7 @@ Create DataLoader:
 ```js
 // MyDataSource.js
 
-import { BatchedSQLDataSource } from "@nic-jennings/batched-sql-datasource"
+import { BatchedSQLDataSource } from "@nic-jennings/sql-datasource"
 
 export class MyDataSource extends BatchedSQLDataSource {
   getBar;
