@@ -4,21 +4,24 @@ SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with
 
 ---
 
+### THIS PACKAGE IS FOR APOLLO CLIENT 4 [@apollo/server](https://www.npmjs.com/package/@apollo/server)
+
+For Apollo Server > 3 please use:
+[@nic-jennings/batched-sql-datasource](https://www.npmjs.com/package/@nic-jennings/batched-sql-datasource)
+
+---
+
 ## Getting Started
 
 ### Installation
 
 ```js
-// Use V2.0.0 > for Apollo Server 4
-// Or V1.X.X for Apollo Server 4
 npm i @nic-jennings/sql-datasource
 ```
 
 or
 
 ```js
-// Use V2.0.0 > for Apollo Server 4
-// Or V1.X.X for Apollo Server 4
 yarn add @nic-jennings/sql-datasource
 ```
 
