@@ -1,28 +1,29 @@
 import { resolvers } from "./graphql/resolvers";
 import { typeDefs } from "./graphql/schema";
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
 import { EventsLoader } from "./graphql/loaders";
 const { HOST } = process.env;
-const KnexConfig = {
+
+const knexConfig = {
   client: "pg",
   connection: `postgresql://postgres:postgres@${
     HOST ? HOST : "host.docker.internal"
   }:5432/postgres`,
 };
 
-const dataSources = {
-  events: new EventsLoader(KnexConfig),
-};
-
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  dataSources: () => {
-    return dataSources;
-  },
-  cache: "bounded",
 });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+startStandaloneServer(server, {
+  context: async () => {
+    const { cache } = server; // highlight-line
+    return {
+      dataSources: {
+        events: new EventsLoader({ knexConfig, cache }),
+      },
+    };
+  },
+}).then(({ url }) => console.log(`🚀 Server ready at ${url}`));

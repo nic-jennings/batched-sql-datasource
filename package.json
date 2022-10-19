@@ -1,6 +1,6 @@
 {
-  "name": "@nic-jennings/batched-sql-datasource",
-  "version": "1.0.3",
+  "name": "@nic-jennings/sql-datasource",
+  "version": "0.0.3",
   "description": "SQL DataSource with Batching and Caching Support",
   "main": "lib/cjs/SQLDataSource.js",
   "module": "lib/es/SQLDataSource.js",
@@ -37,8 +37,7 @@
     "typescript": "^4.8.3"
   },
   "dependencies": {
-    "apollo-datasource": "^3.3.2",
-    "apollo-server-caching": "^3.3.0",
+    "@apollo/utils.keyvaluecache": "^1.0.1",
     "dataloader": "^2.1.0",
     "knex-tiny-logger": "^2.1.0"
   },

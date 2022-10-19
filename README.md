@@ -4,10 +4,10 @@ SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with
 
 ---
 
-### THIS PACKAGE IS FOR > APOLLO CLIENT 3
+### THIS PACKAGE IS FOR APOLLO CLIENT 4 [@apollo/server](https://www.npmjs.com/package/@apollo/server)
 
-For Apollo Server 4 please use:
-[@nic-jennings/sql-datasource](https://www.npmjs.com/package/@nic-jennings/sql-datasource)
+For Apollo Server > 3 please use:
+[@nic-jennings/batched-sql-datasource](https://www.npmjs.com/package/@nic-jennings/batched-sql-datasource)
 
 ---
 
@@ -15,11 +15,15 @@ For Apollo Server 4 please use:
 
 ### Installation
 
-`npm i @nic-jennings/batched-sql-datasource`
+```js
+npm i @nic-jennings/sql-datasource
+```
 
 or
 
-`yarn add @nic-jennings/batched-sql-datasource`
+```js
+yarn add @nic-jennings/sql-datasource
+```
 
 ### Usage
 
@@ -28,13 +32,13 @@ Create DataLoader:
 ```js
 // MyDataSource.js
 
-import { BatchedSQLDataSource } from "@nic-jennings/batched-sql-datasource"
+import { BatchedSQLDataSource } from "@nic-jennings/sql-datasource"
 
 export class MyDataSource extends BatchedSQLDataSource {
   getBar;
 
-  constructor(db) {
-    super(db);
+  constructor(config) {
+    super(config);
 
     // batching
     this.getBar = this.db.query
@@ -45,11 +49,6 @@ export class MyDataSource extends BatchedSQLDataSource {
           return keys.map((x) => result?.filter((y) => y.id === x)
         });
   }
-  /* or if you have seperate read and write instances:
-  constructor(readDb, writeDb) {
-    super(readDb, writeDb);
-  }
-  */
 
   // Standard
   getFoo() {
@@ -84,22 +83,30 @@ const readKnexConfig = {
     /* CONNECTION INFO */
   },
 };
+
+// Optional - if you have different read write instances
 const writeKnexConfig = {
   client: "pg",
   connection: {
     /* CONNECTION INFO */
   },
 };
-// We can either create two instances of Knex (Read & Write) or pass a single connection, you can also pass knex instances instead of a configuration object
-const db = new MyDataSource(knexConfig, writeKnexConfig);
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  cache,
-  context,
-  dataSources: () => ({ db }),
 });
+
+startStandaloneServer(server, {
+  context: async () => {
+    const { cache } = server;
+    return {
+      dataSources: {
+        db: new MyDataSource({ knexConfig, cache, writeKnexConfig }),
+      },
+    };
+  },
+}).then(({ url }) => console.log(`🚀 Server ready at ${url}`));
 ```
 
 ### Batching (.batch( key, callback ))
@@ -148,13 +155,13 @@ BatchedSQLDataSource is a Typescript Class that extends Apollo's base DataSource
 
 BatchedSQLDataSource has an initialize method that Apollo will call when a new request is routed.
 
-If no cache is provided in your Apollo server configuration, SQLDataSource falls back to the same InMemoryLRUCache leveraged by [RESTDataSource].
+If no cache is provided in your Apollo server configuration, SQLDataSource falls back to the same InMemoryLRUCache.
 
-### context
+### Context
 
-The context from your Apollo server is available as `this.context`.
+If you pass a context property into the constuctor's config then it will be available in the class as`this.context`.
 
-### knex
+### Knex
 
 The knex instance is made available as `this.db.query` and `this.db.write`.
 
@@ -165,30 +172,6 @@ As the names suggest one should be a read instance and the other should be a wri
 ## Debugging
 
 To enable more enhanced logging via [knex-tiny-logger], set `DEBUG` to a truthy value in your environment variables.
-
----
-
-## V1.0.0: Breaking changings
-
-The API has changed from the V0.0.1 > to V0.2.2.
-
-Previously the `batch` function accepted a string and function to filter the results. This has been changed to accept a function which allows you pass an object to the `.load` or `.loadMany` and do multiple whereIn queries.
-
-E.g:
-
-```
-dataSources.db.getBar.load({ id, value: "bar" });
-```
-
-```
-   this.getBar = this.db.query
-        .select("*")
-        .from({b: "bar"})
-        .batch(async (query, keys) => {
-          const result = query.whereIn("b.id", keys.map(k => k.id)).whereIn("b.value", keys.map(k => k.value));
-          return keys.map((x) => result?.filter((y) => y.id === x.id && y.value === x.value)
-        });
-```
 
 ---
 

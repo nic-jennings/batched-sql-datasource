@@ -1,15 +1,15 @@
 import {
   BatchedLoader,
   BatchedSQLDataSource,
-} from "@nic-jennings/batched-sql-datasource";
-import { Knex } from "knex";
+  BatchedSQLDataSourceProps,
+} from "@nic-jennings/sql-datasource";
 import { EventAttribute, Event } from "../../types";
 
 export class EventsLoader extends BatchedSQLDataSource {
   getEventsAttributesBatched: BatchedLoader<string, EventAttribute[]>;
 
-  constructor(read: Knex | Knex.KnexConfig, write?: Knex | Knex.KnexConfig) {
-    super(read, write);
+  constructor(config: BatchedSQLDataSourceProps) {
+    super(config);
 
     this.getEventsAttributesBatched = this.db.query
       .select("*")

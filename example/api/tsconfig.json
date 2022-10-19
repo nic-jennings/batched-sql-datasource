@@ -10,9 +10,10 @@
     "types/declarations.d.ts"
   ],
   "compilerOptions": {
-    "module": "commonjs",    
+    "module": "CommonJS",    
     "target": "ESNext",
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "esModuleInterop": true, 
+    "moduleResolution": "node",                            /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "noImplicitAny": false,

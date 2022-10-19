@@ -1,10 +1,9 @@
 import { createHash } from "crypto";
-import { DataSource } from "apollo-datasource";
-import { InMemoryLRUCache } from "apollo-server-caching";
 import DataLoader from "dataloader";
 import knex, { Knex } from "knex";
 import knexTinyLogger from "knex-tiny-logger";
 import { Knex as KnexOriginal } from "knex";
+import { InMemoryLRUCache, KeyValueCache } from "@apollo/utils.keyvaluecache";
 
 declare module "knex" {
   namespace Knex {
@@ -45,36 +44,26 @@ interface NewQueryBuilder {
     ) => Knex.QueryBuilder<TRecord, TResult> | BatchedLoader
   ): void;
 }
-
-export class BatchedSQLDataSource extends DataSource {
-  cache: any;
-  context: any;
+export type BatchedSQLDataSourceProps<Context = any> = {
+  knexConfig: Knex.KnexConfig | DataSourceKnex;
+  writeKnexConfig?: Knex.KnexConfig | DataSourceKnex;
+  cache?: KeyValueCache;
+  context?: Context;
+};
+export class BatchedSQLDataSource {
+  cache: BatchedSQLDataSourceProps["cache"];
+  context: BatchedSQLDataSourceProps["context"];
   db: {
     query: DataSourceKnex;
     write: DataSourceKnex;
   };
-  seperateInstances: boolean;
 
-  constructor(
-    readKnexConfig: Knex.KnexConfig | DataSourceKnex,
-    writeKnexConfig?: Knex.KnexConfig | DataSourceKnex
-  ) {
-    super();
-    this.seperateInstances = true;
-    const queryConnection =
-      typeof readKnexConfig === "function"
-        ? readKnexConfig
-        : knex(readKnexConfig);
+  constructor(config: BatchedSQLDataSourceProps) {
+    this.cache = config.cache ? config.cache : new InMemoryLRUCache();
+    this.context = config.context;
 
-    if (!writeKnexConfig) {
-      this.seperateInstances = false;
-      writeKnexConfig = queryConnection;
-    }
-
-    const writeConnection =
-      typeof writeKnexConfig === "function"
-        ? writeKnexConfig
-        : knex(writeKnexConfig);
+    const { queryConnection, writeConnection } =
+      this._connectToDatabase(config);
 
     this.db = {
       query: queryConnection,
@@ -89,7 +78,7 @@ export class BatchedSQLDataSource extends DataSource {
     const knexQueryBuilder = knex.QueryBuilder as NewQueryBuilder;
     if (!this.db.query.cache && !hasCache) {
       knexQueryBuilder.extend("cache", function (ttl) {
-        return _this.cacheQuery(this, ttl);
+        return _this._cacheQuery(this, ttl);
       });
       hasCache = true;
     }
@@ -97,43 +86,58 @@ export class BatchedSQLDataSource extends DataSource {
     if (!this.db.query.batch && !hasBatch) {
       knexQueryBuilder.extend("batch", function (callback: Knex.BatchCallback) {
         const query: Knex.QueryBuilder = this.clone();
-        return _this.batchQuery(query, callback);
+        return _this._batchQuery(query, callback);
       });
       hasBatch = true;
     }
   }
 
-  batchQuery(
+  private _connectToDatabase(config: BatchedSQLDataSourceProps) {
+    let seperateInstances = true;
+    const queryConnection =
+      typeof config.knexConfig === "function"
+        ? config.knexConfig
+        : knex(config.knexConfig);
+
+    if (!config.writeKnexConfig) {
+      seperateInstances = false;
+      config.writeKnexConfig = queryConnection;
+    }
+
+    const writeConnection =
+      typeof config.writeKnexConfig === "function"
+        ? config.writeKnexConfig
+        : knex(config.writeKnexConfig);
+
+    if (DEBUG && !hasLogger) {
+      hasLogger = true; // Prevent duplicate loggers
+      knexTinyLogger(queryConnection); // Add a logging utility for debugging
+      if (seperateInstances) knexTinyLogger(writeConnection); // Add a logging utility for debugging
+    }
+
+    return { queryConnection, writeConnection };
+  }
+
+  private _batchQuery(
     query: Knex.QueryBuilder,
     callback: Knex.BatchCallback
   ): BatchedLoader {
     return new DataLoader((keys) => callback(query, keys));
   }
 
-  initialize(config: { context: any; cache: InMemoryLRUCache<string> }) {
-    this.context = config.context;
-    this.cache = config.cache || new InMemoryLRUCache();
-
-    if (DEBUG && !hasLogger) {
-      hasLogger = true; // Prevent duplicate loggers
-      knexTinyLogger(this.db.query); // Add a logging utility for debugging
-      if (this.seperateInstances) knexTinyLogger(this.db.write); // Add a logging utility for debugging
-    }
-  }
-
-  cacheQuery(query: Promise<any>, ttl = 5) {
+  private _cacheQuery(query: Promise<any>, ttl = 5): Knex.QueryBuilder {
     const cacheKey = createHash("sha1")
       .update(query.toString())
       .digest("base64");
 
-    return this.cache.get(cacheKey).then((entry: string) => {
+    return this.cache?.get(cacheKey).then((entry: string | undefined) => {
       if (entry) return Promise.resolve(JSON.parse(entry));
 
       return query.then((rows) => {
-        if (rows) this.cache.set(cacheKey, JSON.stringify(rows), { ttl });
+        if (rows) this.cache?.set(cacheKey, JSON.stringify(rows), { ttl });
 
         return Promise.resolve(rows);
       });
-    });
+    }) as Knex.QueryBuilder;
   }
 }
