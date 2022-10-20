@@ -32,8 +32,7 @@ export interface DataSourceKnex extends Knex {
   batch?: Knex.QueryBuilder["batch"];
 }
 
-export interface BatchedLoader<T = unknown, K = unknown>
-  extends DataLoader<T, K> {}
+export interface BatchedLoader<T = unknown, K = any> extends DataLoader<T, K> {}
 
 interface NewQueryBuilder {
   extend(
