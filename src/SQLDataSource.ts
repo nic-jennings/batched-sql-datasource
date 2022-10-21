@@ -121,7 +121,10 @@ export class BatchedSQLDataSource {
     query: Knex.QueryBuilder,
     callback: Knex.BatchCallback
   ): BatchedLoader {
-    return new DataLoader((keys) => callback(query, keys));
+    return new DataLoader((keys) => {
+      const finalQuery = query.clone();
+      return callback(finalQuery, keys);
+    });
   }
 
   private _cacheQuery(query: Promise<any>, ttl = 5): Knex.QueryBuilder {
