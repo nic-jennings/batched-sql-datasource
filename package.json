@@ -12,7 +12,9 @@
     "build:cjs": "tsc --module CommonJS --outDir lib/cjs",
     "prepublish": "npm run build",
     "pretest": "docker rm -f postgres-bsd-test; docker run --name postgres-bsd-test -e POSTGRES_PASSWORD=password -p 32123:5432 -d postgres:14.1-alpine && sleep 10;",
-    "test": "jest --forceExit --runInBand --config tests/jest.integration.config.js"
+    "test": "jest --forceExit --runInBand --config tests/jest.integration.config.js",
+    "test:migrate:make": "knex migrate:make --migrations-directory ./tests/integration/migrations -x ts",
+    "test:seed:make": "cd tests/integration; knex seed:make -x ts"
   },
   "repository": {
     "type": "git",
