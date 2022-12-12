@@ -1,0 +1,27 @@
+name: PR (open, synchronize, reopened)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  Test:
+    name: "Test Code"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: set npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.7.0"
+
+      - name: "install deps"
+        run: npm ci
+      - name: "Test"
+        run: npm run test
