@@ -4,9 +4,9 @@ SQL DataSource combines the power of `Knex` with `Apollo DataSources` along with
 
 ---
 
-### THIS PACKAGE IS FOR APOLLO CLIENT 4 [@apollo/server](https://www.npmjs.com/package/@apollo/server)
+### THIS PACKAGE IS FOR APOLLO SERVER 4 [@apollo/server](https://www.npmjs.com/package/@apollo/server)
 
-For Apollo Server > 3 please use:
+For Apollo Server < 4 please use:
 [@nic-jennings/batched-sql-datasource](https://www.npmjs.com/package/@nic-jennings/batched-sql-datasource)
 
 ---
