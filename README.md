@@ -27,7 +27,7 @@ yarn add @nic-jennings/sql-datasource
 
 ### Usage
 
-Create DataLoader:
+Create DataSource:
 
 ```js
 // MyDataSource.js
